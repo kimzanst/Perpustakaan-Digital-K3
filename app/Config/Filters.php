@@ -12,7 +12,7 @@ use CodeIgniter\Filters\InvalidChars;
 use CodeIgniter\Filters\PageCache;
 use CodeIgniter\Filters\PerformanceMetrics;
 use CodeIgniter\Filters\SecureHeaders;
-use App\Filters\AuthFilter; // Tambahkan filter autentikasi
+use App\Filters\AuthFilter; // ✅ Tambahkan filter autentikasi
 
 class Filters extends BaseFilters
 {
@@ -26,25 +26,33 @@ class Filters extends BaseFilters
         'forcehttps'    => ForceHTTPS::class,
         'pagecache'     => PageCache::class,
         'performance'   => PerformanceMetrics::class,
-        'auth'          => AuthFilter::class, // 🔹 Tambahkan filter auth
+        'auth'          => AuthFilter::class, // ✅ Tambahkan filter auth
     ];
 
     public array $globals = [
         'before' => [
             'auth' => [
                 'except' => [
-                    'login', 'login-process', 'register', 'register-process', 'logout'
+                    '/', 'login', 'login-process', 'register', 'register-process', 'logout'
                 ]
             ],
         ],
         'after' => [
             'toolbar',
+            'secureheaders', // ✅ Tambahkan header keamanan setelah request selesai
         ],
     ];
 
     public array $methods = [];
 
     public array $filters = [
-        'auth' => ['before' => ['admin/*', 'petugas/*', 'peminjam/*']], // 🔹 Tambahkan proteksi berdasarkan role
+        'auth' => [
+            'before' => [
+                'admin/*',  // 🔹 Proteksi semua route di /admin/
+                'petugas/*', // 🔹 Proteksi semua route di /petugas/
+                'peminjam/*', // 🔹 Proteksi semua route di /peminjam/
+                'dashboard/*', // 🔹 Proteksi semua dashboard pengguna
+            ]
+        ],
     ];
 }

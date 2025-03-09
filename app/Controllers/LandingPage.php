@@ -10,4 +10,8 @@ class LandingPage extends Controller
     {
         return view('landing_page'); // ✅ Pastikan ini bisa diakses tanpa login
     }
+    
+}
+if (!session()->get('logged_in')) {
+    return redirect()->to('/login');
 }

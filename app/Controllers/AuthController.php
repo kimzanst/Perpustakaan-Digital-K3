@@ -8,6 +8,11 @@ class AuthController extends Controller
 {
     public function login()
     {
+        // Jika sudah login, langsung arahkan ke dashboard masing-masing
+        if (session()->get('logged_in')) {
+            return $this->redirectToDashboard(session()->get('role'));
+        }
+
         return view('auth/login');
     }
 
@@ -25,13 +30,11 @@ class AuthController extends Controller
             return redirect()->back()->withInput()->with('error', 'Email tidak ditemukan!');
         }
     
-        // 🔍 Debugging: Cek hash password dari database
- 
-    
         if (!password_verify($password, $user['password'])) {
             return redirect()->back()->withInput()->with('error', 'Password salah!');
         }
     
+        // Regenerasi session untuk keamanan
         session()->regenerate();
         $session->set([
             'id'        => $user['id'],
@@ -43,7 +46,6 @@ class AuthController extends Controller
         return $this->redirectToDashboard($user['role']);
     }
     
-
     private function redirectToDashboard($role)
     {
         switch ($role) {
@@ -54,6 +56,7 @@ class AuthController extends Controller
             case 'peminjam':
                 return redirect()->to('/dashboard/visitor');
             default:
+                session()->destroy();
                 return redirect()->to('/login')->with('error', 'Role tidak valid!');
         }
     }
@@ -67,7 +70,7 @@ class AuthController extends Controller
     {
         $model = new UserModel();
     
-        // Validasi input
+        // Validasi input dengan feedback error yang lebih baik
         if (!$this->validate([
             'username'         => 'required|min_length[3]',
             'email'            => 'required|valid_email|is_unique[users.email]',
@@ -77,14 +80,14 @@ class AuthController extends Controller
             return redirect()->back()->withInput()->with('error', 'Silakan periksa kembali input Anda.');
         }
     
-        // 🔹 Hash password sebelum menyimpan
+        // Hash password sebelum menyimpan
         $hashedPassword = password_hash($this->request->getPost('password'), PASSWORD_DEFAULT);
     
         // Simpan user baru sebagai peminjam
         $model->insert([
             'username' => $this->request->getPost('username'),
             'email'    => $this->request->getPost('email'),
-            'password' => $hashedPassword, // 🔹 Simpan dalam bcrypt
+            'password' => $hashedPassword, 
             'role'     => 'peminjam'
         ]);
     
@@ -97,4 +100,3 @@ class AuthController extends Controller
         return redirect()->to('/login')->with('success', 'Anda telah logout.');
     }
 }
-

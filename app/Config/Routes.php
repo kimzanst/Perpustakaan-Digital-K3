@@ -5,7 +5,8 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
-$routes->get('/', 'LandingPage::index'); // ✅ Pastikan ini mengarah ke Landing Page
+$routes->get('/', 'LandingPage::index'); // ✅ Arahkan halaman utama ke Landing Page
+// ✅ Pastikan ini mengarah ke Landing Page
 
 // 🔹 AUTHENTICATION (Login, Register, Logout)
 $routes->get('/login', 'AuthController::login');
